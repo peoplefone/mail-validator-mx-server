@@ -1,0 +1,21 @@
+{
+    "name": "peoplefone/mail-validator-mx-server",
+    "description": "Validate e-mail addresses by connecting to the remote MX server.",
+    "keywords": ["check","validator","mail","mx","smtp"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nicolas Urech",
+            "email": "nicolas.urech@peoplefone.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "peoplefone": "src/"
+        }
+    }
+}
