@@ -20,14 +20,15 @@ $class->setStreamTimeOut("15");
  * SET / UNSET CONTACTS
  * ##############################
  */
-$class->setContact("username@test.com");
-$class->setContact("username@domain.com");
+$class->setContact("noreply@hotmail.com");
+$class->setContact("noreply@gmail.com");
+$class->setContact("noreply@yahoo.com");
 
-print str_pad("BEFORE UNSET => ", 30) . implode(", ", $class->getContacts()) . PHP_EOL;
+print str_pad("BEFORE UNSET => ", 15) . implode(", ", $class->getContacts()) . PHP_EOL;
 
-$class->unsetContact("username@test.com");
+$class->unsetContact("noreply@yahoo.com");
 
-print str_pad("AFTER UNSET => ", 30) . implode(", ", $class->getContacts()) . PHP_EOL;
+print str_pad("AFTER UNSET => ", 15) . implode(", ", $class->getContacts()) . PHP_EOL;
 
 /**
  * ##############################
@@ -35,5 +36,5 @@ print str_pad("AFTER UNSET => ", 30) . implode(", ", $class->getContacts()) . PH
  * ##############################
  */
 
-$result = $class->validate();
+$result = $class->validate(true);
 print_r($result);

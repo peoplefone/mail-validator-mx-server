@@ -185,6 +185,13 @@ class mailValidatorMXServer {
         {
             $obj = (object)array();
             
+            if($this->debug)
+            {
+                print str_pad("####", 15, "#") . PHP_EOL;
+                print str_pad("####", 5, " ") . $user . PHP_EOL;
+                print str_pad("####", 15, "#") . PHP_EOL;
+            }
+            
             $obj->mail = $user;
             $obj->host = $this->getMXDomains($user);
             $obj->code = 0;
