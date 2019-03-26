@@ -94,32 +94,32 @@ class mailValidatorMXServer {
     
     /**
      * @param int $sock_port
-     * @return int
+     * @return bool
      */
     public function setConnectionPort($sock_port=25)
     {
         $this->sock_port = $sock_port;
-        return 1;
+        return true;
     }
     
     /**
      * @param int $sock_timeout
-     * @return int
+     * @return bool
      */
     public function setConnectionTimeOut($sock_timeout=30)
     {
         $this->sock_timeout = $sock_timeout;
-        return 1;
+        return true;
     }
     
     /**
      * @param int $stream_timeout
-     * @return int
+     * @return bool
      */
     public function setStreamTimeOut($stream_timeout=15)
     {
         $this->stream_timeout = $stream_timeout;
-        return 1;
+        return true;
     }
     
     /**
@@ -133,13 +133,20 @@ class mailValidatorMXServer {
         if(!empty($user) && !in_array($user, $this->user_list))
         {
             $this->user_list[] = $user;
-            sort($this->user_list);
             return true;
         }
-        else
-        {
-            return false;
-        }
+        
+        return false;
+    }
+    
+    /**
+     * @param string $user Email Address
+     */
+    public function unsetContact($user)
+    {
+        $user = preg_replace("/[^a-z0-9\-\.\@]/", "", strtolower($user));
+        
+        unset($this->user_list[array_search($user, $this->user_list)]);
     }
     
     /**
@@ -151,24 +158,11 @@ class mailValidatorMXServer {
     }
     
     /**
-     * @param string $user Email Address
-     * @return array
-     */
-    public function unsetContact($user)
-    {
-        $user = preg_replace("/[^a-z0-9\-\.\@]/", "", strtolower($user));
-        
-        unset($this->user_list[array_search($user, $this->user_list)]);
-        
-        return;
-    }
-    
-    /**
-     * @return array
+     * 
      */
     public function clearContacts()
     {
-        $this->user_list = [];
+        $this->user_list = array();
     }
     
     /**
@@ -239,10 +233,10 @@ class mailValidatorMXServer {
     
     private function getMXDomains($user)
     {
-        $hosts = $lines = $found = array();
+        $hosts = $lines = $matches = array();
         
-        $host = (strpos($user,"@")!==false) ? substr($user, strrpos($user,'@')+1) : $user;
-        $host = strtolower(preg_replace("/[^a-zA-Z0-9\-\.]/", "", $host));
+        $host = strpos($user,"@")!==false ? substr($user, strrpos($user,'@')+1) : $user;
+        $host = preg_replace("/[^a-z0-9\-\.]/", "", strtolower($host));
         
         if(`which nslookup`) {
             exec("nslookup -querytype=mx ".$host, $lines);
@@ -256,11 +250,11 @@ class mailValidatorMXServer {
         
         foreach($lines as $line)
         {
-            preg_match('/([0-9]+)\s([a-z0-9\-\.]+)$/i', $line, $found);
+            preg_match('/([0-9]+)\s([a-z0-9\-\.]+)$/i', $line, $matches);
             
-            if(count($found)==3)
+            if(count($matches)==3)
             {
-                $hosts[trim($found[2],'.')] = $found[1];
+                $hosts[trim($matches[2],'.')] = $matches[1];
             }
         }
         
@@ -271,26 +265,20 @@ class mailValidatorMXServer {
     
     private function getMXConnection($hosts)
     {
-        $errno = $errstr = NULL;
-        
         if(is_array($hosts))
         {
+            $errno = $errstr = NULL;
+            
             foreach($hosts as $host)
             {
-                try
-                {
-                    $sock = fsockopen($host, $this->sock_port, $errno, $errstr, (float)$this->sock_timeout);
-                }
-                catch (Exception $e) {
-                    print $e->getMessage().PHP_EOL;
-                }
+                $sock = fsockopen($host, $this->sock_port, $errno, $errstr, (float)$this->sock_timeout);
                 
                 if($sock)
                 {
                     stream_set_timeout($sock, $this->stream_timeout);
+                    
+                    return $sock;
                 }
-                
-                return $sock;
             }
         }
         
